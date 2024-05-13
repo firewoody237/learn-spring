@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <ul> 편의 객체
+        <li>Request Parameter = <span th:text="${param.paramData}"></span></li>
+        <li>session = <span th:text="${session.sessionData}"></span></li>
+        <li>spring bean = <span th:text="${@helloBean.hello('Spring!')}"></span></li>
+    </ul>
+</body>
+</html>

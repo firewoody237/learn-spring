@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <ul> 산술 연산
+        <li>10 + 2 = <span th:text="10 + 2"></span></li>
+        <li>10 % 2 = <span th:text="10 % 2"></span></li>
+    </ul>
+
+    <ul> 비교 연산
+        <li>10 > 2 = <span th:text="10 &gt; 2"></span></li>
+        <li>10 gt 2 = <span th:text="10 gt 2"></span></li>
+        <li>10 >= 2 = <span th:text="10 >= 2"></span></li>
+        <li>10 ge 2 = <span th:text="10 ge 2"></span></li>
+        <li>10 == 2 = <span th:text="10 == 2"></span></li>
+        <li>10 != 2 = <span th:text="10 != 2"></span></li>
+    </ul>
+
+    <ul> 조건식
+        <li>(10 % 2 == 0)? '짝수':'홀수' = <span th:text="(10 % 2 == 0)? '짝수':'홀수'"></span></li>
+    </ul>
+
+    <ul> Elvis 연산자
+        <li>${data}?: '데이터가 없습니다.' = <span th:text="${data}?: '데이터가 없습니다.'"></span></li>
+        <li>${nullData}?: '데이터가 없습니다.' = <span th:text="${nullData}?: '데이터가 없습니다.'"></span></li>
+    </ul>
+
+<!--    `_`인 경우 마치 타임리프가 실행되지 않은 것 처럼 동작.-->
+    <ul> No-Operation
+        <li>${data}?: _ '데이터가 없습니다.' = <span th:text="${data}?: _">데이터가 없습니다.</span></li>
+        <li>${nullData}?: _ '데이터가 없습니다.' = <span th:text="${nullData}?: _">데이터가 없습니다.</span></li>
+    </ul>
+</body>
+</html>

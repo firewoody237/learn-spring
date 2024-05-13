@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--    문자는 항상 작은 따옴표로 감싸야 한다.-->
+<!--    리터럴 대체를 사용하여 편하게 작성할 수 있다.-->
+    <ul> Literal
+        <li>'hello' + ' world!' = <span th:text="'hello' + ' world!'"></span></li>
+        <li>'hello world!' = <span th:text="'hello world!'"></span></li>
+        <li>'hello ' + ${data} = <span th:text="'hello' + ${data}"></span></li>
+        <li>리터럴 대체 |hello ${data}| = <span th:text="|hello ${data}|"></span></li>
+    </ul>
+</body>
+</html>

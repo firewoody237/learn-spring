@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--    th:*는 기존 속성을 대체한다.-->
+<!--    체크 박스의 th:checked가 false이면 checked 속성 자체를 제거하므로 편리하게 쓸 수 있다.-->
+    <ul> 속성 추가
+        - th:attrappend = <input type="text" class="text" th:attrappend="class='large'"/><br/>
+        - th:attrprepend = <input type="text" class="text" th:attrprepend="class='large'"/><br/>
+        - th:classappend = <input type="text" class="text" th:classappend="large"/><br/>
+    </ul>
+</body>
+</html>

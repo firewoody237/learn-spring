@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <ul> Object
+        <li>${user.username} = <span th:text="${user.username}"></span></li>
+        <li>${user['username']} = <span th:text="${user['username']}"></span></li>
+        <li>${user.getUsername()} = <span th:text="${user.getUsername()}"></span></li>
+    </ul>
+
+    <ul> List
+        <li>${userList[0].username} = <span th:text="${userList[0].username}"></span></li>
+        <li>${userList[0]['username']} = <span th:text="${userList[0]['username']}"></span></li>
+        <li>${userList[0].getUsername()} = <span th:text="${userList[0].getUsername()}"></span></li>
+    </ul>
+
+    <ul> Map
+        <li>${userMap['userA'].username} = <span th:text="${userMap['userA'].username}"></span></li>
+        <li>${userMap['userA']['username']} = <span th:text="${userMap['userA']['username']}"></span></li>
+        <li>${userMap['userA'].getUsername()} = <span th:text="${userMap['userA'].getUsername()}"></span></li>
+    </ul>
+
+    <ul> 지역변수 사용 (th:with)
+        <div th:with="first=${userList[0]}">
+            <li>처음 사람 이름 : <span th:text="${first.username}"></span></li>
+        </div>
+    </ul>
+</body>
+</html>
