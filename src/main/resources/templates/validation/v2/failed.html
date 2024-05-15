@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div th:object="${item}">
+        <div th:if="${#fields.hasGlobalErrors()}">
+            <p class="field-error" th:each="err : ${#fields.globalDetailedErrors()}" th:text="${err}">글로벌 오류 메시지</p>
+        </div>
+
+        <div>
+<!--            `th:errors`는 해당 필드에 오류가 있는 경우 태그를 출력한다. `th:if`의 편의 버전-->
+            <input type="text" id="itemName" th:field="*{itemName}" th:errorclass="field-error" class="form-control" placeholder="이름을 입력해주세요">
+            <div class="field-error" th:errors="*{itemName}">상품명 오류</div>
+        </div>
+
+        <div>
+<!--            `th:field`는 정상 상황에서는 모델 객체의 값을 사용한다.-->
+<!--            오류가 발생하면 FieldError에서 보관한 값을 사용해서 값을 출력한다.-->
+            <input type="text" id="price" th:field="*{price}" th:errorclass="field-error" class="form-control" placeholder="가격을 입력해주세요">
+            <div class="field-error" th:errors="*{price}">가격 오류</div>
+        </div>
+
+        <div>
+            <input type="text" id="quantity" th:field="*{quantity}" th:errorclass="field-error" class="form-control" placeholder="수량을 입력해주세요">
+            <div class="field-error" th:errors="*{quantity}">수량 오류</div>
+        </div>
+    </div>
+</body>
+</html>
