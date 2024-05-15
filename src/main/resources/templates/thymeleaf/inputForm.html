@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--    th:object를 통해 선택 변수식을 적용할 수 있음-->
+    <form th:action th:object="${item}" method="post">
+        <div>
+            <label for="itemName">아이템 이름</label>
+<!--            th:field="*{username}"은 th:field="${user.username}"와 동일-->
+            <input type="text" id="itemName" th:field="*{itemName}" class="form-control" placeholder="이름을 입력해주세요">
+        </div>
+        <div>
+            <label for="price">가격</label>
+            <input type="text" id="price" th:field="*{price}" class="form-control" placeholder="가격을 입력해주세요">
+        </div>
+        <div>
+            <label for="quantity">수량</label>
+            <input type="text" id="quantity" th:field="*{quantity}" class="form-control" placeholder="수량을 입력해주세요">
+        </div>
+
+        <div>단일 체크박스</div>
+        <div>
+            <div class="form-check">
+                <!--        히든 필드(_open)를 자동으로 생성해 줌-->
+                <input type="checkbox" id="open" name="*{open}" class="form-check-input">
+                <label for="open" class="form-check-label">판매 오픈</label>
+            </div>
+        </div>
+
+        <div>멀티 체크박스</div>
+        <div>
+            <div th:each="region : ${regions}" class="form-check form-check-inline">
+                <input type="checkbox" th:field="*{regions}" th:value="${region.key}" class="form-check-input">
+                <label th:for="${#ids.prev('regions')}" th:text="${region.value}" class="form-check-label">서울</label>
+            </div>
+        </div>
+
+        <div>라디오 버튼</div>
+        <div th:each="type : ${itemTypes}" class="form-check form-check-inline">
+            <input type="radio" th:field="*{itemType}" th:value="${type.name()}" class="form-check-input">
+            <label th:for="${#ids.prev('itemType')}" th:text="${type.description}" class="form-check-label">BOOK</label>
+        </div>
+
+        <div>셀렉트</div>
+        <div>
+            <select th:field="*{deliveryCode}" class="form-select">
+                <option value="">===배송 방식 선택===</option>
+                <option th:each="deliveryCode : ${deliveryCodes}" th:value="${deliveryCode.code}" th:text="${deliveryCode.displayName}">FAST</option>
+            </select>
+        </div>
+    </form>
+</body>
+</html>
