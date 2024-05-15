@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--    `#{...}`로 스프링의 메시지를 조회할 수 있다.-->
+    <p th:text="#{label.item}">1</p>
+    <p th:text="#{label.item.id}">2</p>
+    <p th:text="#{label.item.price}">3</p>
+    <p th:text="#{label.item.quantity}">4</p>
+    <button th:text="#{button.cancel}">5</button>
+</body>
+</html>
