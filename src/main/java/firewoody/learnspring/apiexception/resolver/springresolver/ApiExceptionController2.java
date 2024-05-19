@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-public class ApiExceptionController {
+public class ApiExceptionController2 {
 
     // 여기의 ExceptionHandler는 현재 Controller만을 대상으로 한다. (`@ControllerAdvice` 또는 `@RestControllerAdvice`로 분리할 수 있다.)
     // 우선순위는 자세한것을 우선순위로 한다.
