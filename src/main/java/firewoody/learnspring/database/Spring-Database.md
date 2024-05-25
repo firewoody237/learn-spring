@@ -17,3 +17,11 @@
 ### JDBC
 ![DriverManager 커넥션 요청 흐름](./images/image001.png)
 - `DriverManager.getConnection()`을 호출하면, URL정보를 통해 처리할 수 있는 요청인지 확인한다. 그리고 커넥션을 획득해 반환한다.
+
+### Connection-Pool
+- DB 커넥션을 새로만드는건 복잡하고 시간이 많이 걸린다.
+- 커넥션을 미리 만들어두고, 커넥션 풀에 저장하여 사용한다.
+- 어플리케이션은 커넥션을 사용하고, 종료하지 않은채 반환한다.
+- `commons-dbcp2`, `tomcat-jdbc pool`, `HikariCP` 등이 있다.
+- DriveManager나, Connection Pool 모두 커넥션을 획득하는 방법이 다르므로, 자바는 `javax.sql.DataSource` 인터페이스를 제공한다.(추상화)
+- 설정과 사용의 분리를 제공한다.
