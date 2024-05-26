@@ -117,3 +117,27 @@
 ### JdbcTemplate으로 반복 제거
 - `MemberRepositoryV5` 참고
 - `JdbcTemplate`을 사용하면 "트랜잭션 커넥션 동기화"는 물론, 예외 발생 시 "스프링 예외 변환기"도 자동으로 실행한다.
+
+### 데이터 접근 기술
+- SQL Mapper : JdbcTemplate, MyBatis
+- ORM : JPA, Hibernate, 스프링 데이터 JPA, Querydsl
+
+#### JdbcTemplate
+- 설정이 편리하다
+- 템플릿 콜백 패턴으로 반복 작업을 대신 처리 해준다.
+- 동적 SQL을 해결하기 어렵다.
+- 템플릿 종류
+  - `JdbcTemplate` : 일반적인 순서기반 파라미터 바인딩의 JdbcTemplate -> `JdbcTemplateRepositoryV1`
+  - `NamedParameterJdbcTemplate` : 이름을 지정해서 파라미터를 바인딩하는 JdbcTemplate -> `JdbcTemplateRepositoryV2`
+    - 이름 지정 바인딩에 사용되는 것
+      - `Map`
+      - `SqlParameterSource`
+        - `MapSqlParameterSource`
+        - `BeanPropertySqlParameterSource`
+  - `SimpleJdbcInsert` : InsertSQL을 작성하지 않아도 되도록 편리한 기능을 제공 - `JdbcTemplateRepositoryV3`
+  - `SimpleJdbcCall` : 스토어드 프로시저를 편리하게 호출
+- 메서드 종류
+  - `queryForObject` : 단건 조회
+  - `query` : 목록 조회
+  - `update` : insert, update, delete, 프로시저 호출
+  - `execute` : 임의의 SQL 실행 혹은 DDL에 사용
