@@ -152,3 +152,24 @@
   - `@Profile("test")` + `setUrl("jdbc:h2:m2m:db;DB_CLOSE_DELAY=-1")`
   - `src/test/resources/schema.sql`에 애플리케이션 로딩 시점의 쿼리를 미리 넣어놓을 수 있다.
 - 스프링부트는 DB에 대한 별도 설정이 없으면, 임베디드 데이터베이스를 사용한다.
+
+#### MyBatis
+- `mybatis-spring-boot-starter` 필요
+- `#{}` 문법은 `PreparedStatement`를 사용한다.
+- 파라미터가 2개 이상이라면 파라미터를 `@Param`을 통해 구분 해 주어야 한다.
+- `select`의 결과를 편리하게 객체로 바로 변환 해 준다.
+- 문법
+  - `if`는 해당 조건이 만족하면 구문을 추가한다.
+  - `where`은 `if`가 모두 실패하면 `where`을 만들지 않고, 하나라도 성공하면 처음 나타나는 `and`를 `where`로 변환 해 준다.
+  - `chose` + `when` + `otherwise` : `switch` + `case` + `default`와 비슷하다.
+  - `foreach` : 컬렉션을 반복처리할때 사용
+  - `sql` + `include`를 통해 쿼리 조각을 재사용 할 수 있다.
+- XML이기 때문에 꺽쇄를 인식한다. 따라서 `<![CDATA[ <= ]]>`와 같은 방법을 사용한다.
+- 구현체가 없어도 되는 이유
+  - 애플리케이션 로딩 시점에 `@Mapper`를 조사하여 동적 프록시 객체를 생성하고, 그 구현체를 스프링 빈으로 등록한다.
+    - ![MyBatis 설정 원리](./images/image009.png)
+- 어노테이션으로 SQL을 작성할 수 있게 해준다.
+  - ex. `@Select("select id, item_name, price, quantity from item where id=#{id}`)`
+  - `@Insert`, `@Update`, `@Delete`, `@Select` 등이 있다.
+  - 동적 쿼리는 불가능하기에, 간단한 부분에 대해서만 사용한다.
+- 이름의 `as` 별칭을 사용해서 직접 매핑하거나, `resultMap`을 사용해 별칭을 사용하지 않고 매핑할 수 있다.
