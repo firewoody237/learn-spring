@@ -141,3 +141,14 @@
   - `query` : 목록 조회
   - `update` : insert, update, delete, 프로시저 호출
   - `execute` : 임의의 SQL 실행 혹은 DDL에 사용
+
+#### DB 테스트
+- 테스트의 중요한 원칙
+  - 테스트는 다른 테스트와 격리해야 한다.
+  - 테스트는 반복해서 실행할 수 있어야 한다.
+- `@Transactional`은 테스트에서 사용하면 테스트 종료 시 자동으로 롤백시켜준다.
+  - `@Commit`을 붙이면 종료 후 롤백 대신 커밋이 호출된다.
+- 임베드 모드 : 아래와 같이 사용하면, DB 임베드 모드를 사용할 수 있다.
+  - `@Profile("test")` + `setUrl("jdbc:h2:m2m:db;DB_CLOSE_DELAY=-1")`
+  - `src/test/resources/schema.sql`에 애플리케이션 로딩 시점의 쿼리를 미리 넣어놓을 수 있다.
+- 스프링부트는 DB에 대한 별도 설정이 없으면, 임베디드 데이터베이스를 사용한다.
