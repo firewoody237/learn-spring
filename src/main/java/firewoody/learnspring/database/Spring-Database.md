@@ -173,3 +173,14 @@
   - `@Insert`, `@Update`, `@Delete`, `@Select` 등이 있다.
   - 동적 쿼리는 불가능하기에, 간단한 부분에 대해서만 사용한다.
 - 이름의 `as` 별칭을 사용해서 직접 매핑하거나, `resultMap`을 사용해 별칭을 사용하지 않고 매핑할 수 있다.
+
+#### JPA
+- 자동으로 객체의 카멜케이스를 언더 스코어로 매핑해준다.
+- JPA는 트랜잭션이 커밋되는 시점에 변경 엔티티를 확인하여 변경되는 객체가 있는경우 update sql을 실행한다.(영속성 컨텍스트)
+- `JPQL`은 복잡한 조건 대상일 때 주로 사용하며, 엔티티 객체를 대상으로 SQL을 실행한다.
+- JPA 예외
+  - JPA는 `PersistenceException`과 그 하위 예외를 발생시킴
+  - `@Repository`를 통해 `DataAccessException`으로 변환할 수 있음.
+  - `@Repository`에 "예외 변환 AOP Proxy"가 `DataAccessException`으로 변환시켜준다.
+  - 스프링 부트의 자동으로 등록되는 `PersistenceExceptionTranslationPostProcessor`가 `@Repository`를 AOP 프록시로 만드는 어드바이저를 등록한다.
+  - 실제 예외를 변환하는 코드는 `EntityManagerFactoryUtils.convertJpaAccessExceptionIfPossible()`이다.
