@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/schema/mybatis-3-mapper.dtd">
 <mapper namespace="firewoody237.learnspring.database.dbaccess.mybatis.ItemMapper">
-    <insert id="save" userGeneratedKeys="true" keyProperty="id">
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
         insert into item (item_name, price, quantity)
         values (#{itemName}, #{price}, #{quantity})
     </insert>

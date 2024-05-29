@@ -184,3 +184,13 @@
   - `@Repository`에 "예외 변환 AOP Proxy"가 `DataAccessException`으로 변환시켜준다.
   - 스프링 부트의 자동으로 등록되는 `PersistenceExceptionTranslationPostProcessor`가 `@Repository`를 AOP 프록시로 만드는 어드바이저를 등록한다.
   - 실제 예외를 변환하는 코드는 `EntityManagerFactoryUtils.convertJpaAccessExceptionIfPossible()`이다.
+
+#### 스프링 데이터 JPA
+- JPA를 편리하게 사용할 수 있도록 도와주는 라이브러리
+- ![Spring Data JPA](./images/image010.png)
+- 공통 인터페이스 기능
+  - 스프링 데이터 JPA가 구현 클래스를 대신 생성한다.
+- 쿼리 메서드 기능
+  - 인터페이스에 메서드만 적어두면, 메서드 이름을 분석해서 쿼리를 자동으로 만들고 실행해주는 기능을 제공한다.
+  - 직접 JPQL을 `@Query`와 함께 사용할 수 있으며, 이때는 이름 규칙이 무시된다.
+  - 메서드의 이름의 경우는 파라미터를 순서대로 작성하고, `@Query`의 경우 `@Param("itemName")` 처럼 파라미터 이름을 명시 해 줘야한다.

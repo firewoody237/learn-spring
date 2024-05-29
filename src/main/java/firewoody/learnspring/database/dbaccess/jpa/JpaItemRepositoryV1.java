@@ -1,6 +1,7 @@
 package firewoody.learnspring.database.dbaccess.jpa;
 
-import firewoody.learnspring.database.dbaccess.ItemRepository;
+import firewoody.learnspring.database.dbaccess.jpa.Item;
+import firewoody.learnspring.database.dbaccess.jpa.ItemRepository;
 import firewoody.learnspring.database.dbaccess.ItemSearchCond;
 import firewoody.learnspring.database.dbaccess.ItemUpdateDto;
 import jakarta.persistence.EntityManager;
