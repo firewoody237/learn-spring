@@ -201,3 +201,12 @@
 - 메서드 추출을 사용해 where절의 쿼리들을 재사용 할 수 있다.
 - `select().from().where()`와 같은 방식으로 사용
 - `Q 타입`을 생성해서 만들어야 한다.
+
+#### 데이터 접근기술 활용방안
+- 상황에 따라 다르지만, 기본적으로 JPA + 스프링 데이터 JPA + Querydsl을 사용하고, 복잡한 쿼리 필요 시 JdbcTemplate, MyBatis를 사용한다.
+- JPA + 스프링 데이터 JPA + Querydsl는 기본적으로 `JpaTransactionManager`를 사용한다.
+- JdbcTemplate, MyBatis는 `DataSourceTransactionManager`를 사용한다.
+- `JpaTransactionManager`는 `DataSourceTransactionManager`가 제공하는 대부분의 기능을 제공한다. (내부적으로 `DataSource`와 `JDBC 커넥션`을 사용)
+- 이 경우 주의 할 점은, JPA는 데이터를 변경하면 변경 사항을 즉시 DB에 반영하지 않는다.
+  - 기본적으로 트랜잭션이 커밋되는 시점에 변경 사항을 데이터베이스에 반영한다.
+  - 그래서 하나의 트랜잭션에서 동시에 쓰려면, JPA의 호출이 끝난 후 `Flush`해줘야 한다.
