@@ -1,9 +1,8 @@
 package firewoody.learnspring.advanced.app.threadlocal;
 
+import firewoody.learnspring.advanced.app.logproject.threadlocal.ThreadLocalService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 class ThreadLocalServiceTest {

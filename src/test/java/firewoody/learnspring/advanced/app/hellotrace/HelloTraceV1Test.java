@@ -1,9 +1,8 @@
 package firewoody.learnspring.advanced.app.hellotrace;
 
-import firewoody.learnspring.advanced.app.trace.TraceStatus;
+import firewoody.learnspring.advanced.app.logproject.hellotrace.HelloTraceV1;
+import firewoody.learnspring.advanced.app.logproject.trace.TraceStatus;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class HelloTraceV1Test {
 

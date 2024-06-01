@@ -82,3 +82,6 @@ public class SpringMemberFormControllerV1 {
     }
 }
 ```
+
+### 참고
+- Bean을 등록할 때, 컴포넌트 스캔을 통해 먼저 빈 등록을 진행 한 후 `@Configuration`에 있는 빈을 등록한다.

@@ -1,6 +1,7 @@
 package firewoody.learnspring.advanced.app.logtrace;
 
-import firewoody.learnspring.advanced.app.trace.TraceStatus;
+import firewoody.learnspring.advanced.app.logproject.logtrace.FieldLogTrace;
+import firewoody.learnspring.advanced.app.logproject.trace.TraceStatus;
 import org.junit.jupiter.api.Test;
 
 class FieldLogTraceTest {
