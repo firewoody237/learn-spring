@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 // 인터페이스에 대해 프록시 객체를 만들고, 스프링 컨테이너에는 프록시 객체만 등록한다.
 
-@Configuration
+//@Configuration
 public class InterfaceProxyConfig {
 
     @Bean(name = "proxyOrderControllerV1")
