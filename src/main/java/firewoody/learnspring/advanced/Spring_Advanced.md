@@ -76,3 +76,25 @@
   - 프록시를 만들 때 상속 구조이다. (`final` 키워드에 민감하다.)
   - 클래스에 대한 메소드 요청이 들어오면, 클래스를 상속받은 Proxy가 그걸 받고, `MethodInterceptor`의 `intercept()`를 실행하고, 내부에 메서드의 수행이 있으면 수행한다.
   - ![CGLIB 프록시 순서](./images/image004.png)
+
+### 스프링이 지원하는 프록시
+#### ProxyFactory
+  - 스프링은 `ProxyFactory`를 제공하는데, 인터페이스가 있으면 JDK 동적 프록시를, 구체 클래스만 있으면 CGLIB을 사용한다.
+  - 두 기술(`InvocationHandler`, `MethodInterceptor`)을 함께 사용하려면 `Advice`를 만들기만 하면 된다.
+    - `Advice`는 `org.aopalliance.intercept`를 구현하면 된다.
+    - 테스트 : `ProxyFactoryTest.java`
+  - ![Advice](./images/image005.png)
+#### PointCut, Advice, Advisor
+- `PointCut` : 어디에 부가기능을 적용할지, 적용하지 않을지 판단하는 필터링 로직
+  - `NameMatchMethodPointcut` : 메서드 이름을 기반으로 매칭(`PatternMatchUtils` 사용)
+  - `JdkRegexpMethodPointcut` : JDK 정규 표현식을 기반으로 포인트컷을 매칭
+  - `TruePointcut` : 항상 참을 반환
+  - `AnnotationMatchingPointcut` : 애노테이션으로 매칭
+  - `AspectJExpressionPointcut` : aspectJ 표현식으로 매칭(가장 많이 사용)
+- `Advice` : 프록시가 호출하는 부가 기능
+- `Advisor` : `PointCut` + `Advice`
+- ![Advisor](./images/image006.png)
+- 테스트 : `AdvisorTest.java`
+- 스프링은 AOP를 사용할 때 최적화를 진행해서 프록시는 하나만 만들고, 하나의 프록시에 여러 어드바이저를 적용한다. (target마다 하나의 프록시만 생성한다.)
+- `ProxyFactory`를 통해 인터페이스와 클래스에 관계없이 편하게 프록시를 설정하고, `Advisor`덕에 어디에 어떤 기능을 적용할지 명확해 졌다. 
+- 하지만 설정파일이 지나치게 많아지고, V3처럼 컴포넌트 스캔의 경우 프록시 적용이 불가능하다는 단점이 있다. -> **빈 후처리기** 등장
