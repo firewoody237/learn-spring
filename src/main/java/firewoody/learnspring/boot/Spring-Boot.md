@@ -45,3 +45,29 @@
   - `SpringServletContainerInitializer`의 내부를 보면, `@HandlesTYpes(WebApplicationInitializer.class)` 코드가 존재한다.
   - ![스프링 컨테이너 초기화](./images/image002.png)
     - 초록색은 스프링이 이미 만들어서 제공하는 영역
+
+### 스프링 부트와 내장 톰캣
+- 기존 방식은, 톰캣을 별도로 설치해야 하고, 개발 환경이 복잡하며, 배포가 복잡하고, 톰캣 버전에 대한 민감성이 큼
+- 내장 톰캣 라이브러리 : `implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.5'`
+- 내장 톰캣 기본 : `EmbedTomcatServletMain.java`
+- 내장 톰캣 + 스프링 : `EmbedTomcatSpringMain.java`
+- 내장 톰캣 빌드, 배포
+  - `META-INF/MANIFEST.MF` 파일에 실행할 `main()` 메서드의 클래스를 지정, `jar` 형식으로 빌드
+  - **중요** : `jar` 파일은 `jar` 파일을 포함할 수 없다. -> `FatJar` 방식 사용
+  - `FatJar` : `Jar`안의 클래스들을 새로 만드는 `Jar`에 포함시키는 것
+    - 단점
+      - 어떤 라이브러리가 포함되어 있는지 알기 어렵다
+      - 파일명 중복을 해결할 수 없다
+- 간단하게 만들어보는 스프링 부트 시작점 : `MySpringBootMain.java` + `MySpringApplication.java` + `MySpringBootApplication.java`
+  - 핵심
+    - 스프링 컨테이너를 생성 : `ServletWebServerApplicationContextFactory.java` -> `AnnotationConfigServletWebServerApplicationContext()`(컨테이너 생성)
+    - WAS(내장 톰캣)를 생성 : `TomcatServletWebServerFactory.java`의 `getWebServrer` -> `new Tomcat()`으로 톰캣을 만들고, 커넥터를 등록하고, 디스패처 서블릿을 등록
+- 스프링 부트의 JAR(`Executable Jar`)를 푼 결과
+  - ![스프링 부트 JAR](./images/image003.png)
+- 스프링 부트는 "Executable Jar"를 사용한다.
+  - `jar` 내부에 `jar`를 포함할 수 있다. -> `Fat Jar`의 문제점을 해결
+  - 실행 동작 순서
+    1. `META-INF/MANIFEST.MF` 파일을 찾는다.
+    2. 여기에 있는 `Main-Class`를 읽어서 `main()` 메서드를 실행한다. (`JarLauncher`)
+    3. `JarLauncher`가 특별한 구조에 맞게 클래스 정보를 읽어준다. (`BOOT-INF/classes/`, `BOOT-INF/lib/` 인식)
+    4. `JarLauncher`의 작업이 끝난 후, `META-INF/MANIFEST.MF`에서 `Start-Class`의 `main()`를 실행한다.
