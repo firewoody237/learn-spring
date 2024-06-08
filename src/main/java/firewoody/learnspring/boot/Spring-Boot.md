@@ -71,3 +71,15 @@
     2. 여기에 있는 `Main-Class`를 읽어서 `main()` 메서드를 실행한다. (`JarLauncher`)
     3. `JarLauncher`가 특별한 구조에 맞게 클래스 정보를 읽어준다. (`BOOT-INF/classes/`, `BOOT-INF/lib/` 인식)
     4. `JarLauncher`의 작업이 끝난 후, `META-INF/MANIFEST.MF`에서 `Start-Class`의 `main()`를 실행한다.
+
+### 스프링 부트 스타터와 라이브러리 관리
+#### 라이브러리 관리
+- 라이브러리를 직접 넣으면, 버전에 따른 관리가 발생
+- 스프링 부트는 `io.spring.dependency-management` 플러그인으로 버전을 관리
+- `bom(bill of materials)`정보에 버전이 명시되어 있고, 이 파일을 사용하여 버전이 관리 됨
+- 스프링 부트의 버전에 맞게 자동으로 버전 관리
+#### 스타터
+- `starter`는 의존성을 모아둔 세트
+- [스타터 목록](https://docs.spring.io/spring-boot/reference/using/build-systems.html#using.build-systems.starters)
+- 외부 라이브러리의 버전을 변경하고 싶을 때(build.gradle) : ext['tomcat.version'] = '10.1.4' 
+  - [버전 속성 값](https://docs.spring.io/spring-boot/appendix/dependency-versions/properties.html#appendix.dependency-versions.properties)
