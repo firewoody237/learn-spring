@@ -141,3 +141,55 @@
   3. `@Import(AutoConfigurationImportSelector.class)`
      - `AutoConfigurationImportSelector`는 `META-INF/spring/org.springframework.boot.autoconfiguration.AutoConfiguration.imports` 경로의 파일을 확인
      - 파일 내에 있는 설정 정보가 스프링 컨테이너에 등록되고 사용 됨
+
+### 외부설정과 프로필
+#### 외부설정 4가지
+1. OS 환경 변수 : OS에서 지원하는 외부 설정, 해당 OS를 사용하는 모든 프로세스에서 사용
+   - 테스트 : `OsEnv.java`
+   - 전역변수의 느낌이기 때문에 해당 자바 프로그램만 사용하지 않는다.
+2. 자바 시스템 속성 : 자바에서 지원하는 외부 설정, 해당 JVM 안에서 사용
+   - 테스트 : `JavaSystemProperties.java`
+3. 자바 커맨드 라인 인수 : 커맨드 라인에서 전달하는 외부 설정, 실행 시 `main(args)` 메서드에서 사용
+   - `java -jar app.jar dataA dataB`와 같이 사용
+   - 테스트 : `CommandLineV1.java`, `CommandLineV2.java`
+   - `ApplicationArguments` 빈을 주입받아 사용할 수 있다.(스프링 부트가 자동으로 등록)
+     - 테스트 : `CommandLineBean.java`
+4. 외부 설정 : 프로그램에서 외부 파일을 직접 읽어서 사용
+
+#### 스프링 외부 설정
+##### 외부설정 추상화
+![외부 설정 추상화](./images/image004.png)
+- `Enviroment`와 `PropertySource` 추상화를 사용
+  - `Environment` : 특정 외부 설정에 종속되지 않고, 일관성 있게 `key=value` 형식으로 외부 설정에 접근
+  - 더 유연하거나, 범위가 좁은 설정이 우선순위를 가진다.
+- 스프링 부트는 `application.properties`와 같은 설정 데이터를 통해 `PropertySource`의 구현체를 제공
+  - `Environment`를 통해 조회가 가능
+##### 환결별 외부설정 분리
+- 환경별 설정 데이터를 나눠서, 환경에 따라 빌드되도록 함
+  - ![내부 설정 파일 조회](./images/image005.png)
+  - `application-dev.properties`, `application-prod.properties`
+  - `spring.profiles.active`에 {환경값}을 넣으면 `application-{환경값}.properties`를 설정 데이터로 사용한다.
+    - ex. `--spring.profiles.active=dev`, `-Dspring.profiles.active=dev`
+##### 내부 파일 일원화
+- 환경별로 `application.properties`를 `#---` 혹은 `!---`로 구분 가능
+- `application.yml`의 경우 `---`로 구분
+- `spring.config.activate.on-profile`로 분리된 구분의 환경값을 세팅
+- 일치하는 환경값이 없을 때, 기본값으로 적용 가능
+  - 스프링은 문서를 위에서 아래로 순서대로 읽으면서 설정
+  - 가장 처음에 프로필 정보에 `on-profile`을 설정하지 않으면, 프로필 지정과 무관하게 사용 됨(default)
+  - 단순하게 위에서 값을 읽으며 내려가기 때문에, 가장 밑에 프로필 없는 설정값이 있다면 그 값은 항상 설정되게 됨
+  - 위에서 아래로 내려가며 일치하는 속성값에 대해 값을 덮어 씀
+- [설정 파일 공식문서](https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config)
+- [설정 우선순위](https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config.files)
+- 자주 사용하는 우선순위
+  1. 설정 데이터(`application.properties`)
+  2. OS 환경변수
+  3. 자바 시스템 속성
+  4. 커맨드 라인 옵션 인수
+  5. `@TestPropertySource` (테스트 시)
+- 설정 데이터 우선순위
+  1. jar 내부 `application.properties`
+  2. jar 내부 `application-{profile}.properties`
+  3. jar 외부 `application.properties`
+  4. jar 외부 `application-{profile}.properties`
+- 보통 `application.properties`를 사용하다가 일부 속성을 변경할 필요가 있다면 높은 우선순위를 가지는 **자바 시스템 속성**이나 **커맨드 라인 옵션 인수**를 사용
