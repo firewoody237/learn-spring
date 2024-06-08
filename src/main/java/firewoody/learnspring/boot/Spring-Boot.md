@@ -83,3 +83,61 @@
 - [스타터 목록](https://docs.spring.io/spring-boot/reference/using/build-systems.html#using.build-systems.starters)
 - 외부 라이브러리의 버전을 변경하고 싶을 때(build.gradle) : ext['tomcat.version'] = '10.1.4' 
   - [버전 속성 값](https://docs.spring.io/spring-boot/appendix/dependency-versions/properties.html#appendix.dependency-versions.properties)
+
+### 자동 구성(Auto Configuration)
+- 스프링 부트는 일반적으로 자주 사용하는 빈들을 자동으로 등록해 준다.
+- `spring-boot-autoconfigure` 프로젝트에 자동으로 등록하는 빈들이 존재한다.
+  - ex. `JdbcTemplateAutoConfiguration.java`
+  - `@ConditionalXXX`는 주로 특정 조건에 맞을 때 설정이 동작하도록 한다
+  - 내부 애노테이션
+    - `@AutoConfiguration` : 자동 구성을 위해 등록
+      - 내부에 `@Configuration` 존재
+      - `after=XXXAutoConfiguration.class`를 통해 순서 조정 가능
+    - `@ConditionalOnClass({XXX.class})` : 이 클래스가 있는 경우에만 설정이 동작
+    - `@Import` : 자바 설정을 추가 시 사용
+    - `@ConditionalOnMissingBean(JdbcOperations.class)`
+      - `JdbcOptions` 빈이 없을 때 동작
+      - 개발자가 빈을 등록하지 않으면 자동으로 등록하기 위해 사용
+
+#### `@Conditional`
+- 스프링 프레임워크의 기능
+- 특정 상황일 때만 특정 빈들을 등록해서 사용하도록 도와 준다.
+- `@Condition`을 구현하는 클래스를 활용하여 조건을 지정할 수 있다.
+
+#### `@ConditionalOnXxx`
+- 스프링 부트의 기능
+- 개발자가 편하게 사용할 수 있도록 스프링에서 제공
+- 대표적인 몇가지
+  - `@ConditionalOnClass`, `@ConditionalOnMissingClass` : 클래스가 있는 경우 동작O/X
+  - `@ConditionalOnBean`, `@ConditionalOnMissingBean` : 빈이 등록되어있는 경우 동작O/X
+  - `@ConditionalOnProperty` : 환경 정보가 있는 경우 동작
+  - `@ConditionalOnResource` : 리소스가 있는 경우 동작
+  - `@ConditionalOnWebApplication`, `@ConditionalOnNotWebApplication` : 웹 애플리케이션인 경우 동작
+  - `@ConditionalOnExpression` : SpEL 표현식에 만족하는 경우 동작
+- [ConditionalOn 가이드](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.condition-annotations)
+
+#### 직접 만든 라이브러리를 자동 구성에 추가
+##### 라이브러리 프로젝트
+- `MemoryAutoConfig.java`처럼, `@AutoConfiguration`으로 자동 구성설정임을 선언
+- `src/main/resources/META-INF/spring/org.springframework.boot.autoconfiguration.AutoConfiguration.imports` 파일에 자동구성을 등록 해 주어야 한다.
+  - 스프링 부트는 시작 지점에 위 파일의 정보를 읽어서 자동 구성으로 사용한다. (그 결과 내부의 `MemoryAutoConfig`가 자동으로 실행 됨)
+##### 사용하는 프로젝트
+- 추가하려는 jar파일을 사용하려는 프로젝트에 추가
+- `build.gradle`의 `dependencies`에, `implementation files('libs/memory-v1.jar')`처럼 라이브러리 파일을 추가
+- 자동 설정을 했기 때문에, 조건에 맞으면 라이브러리의 빈이 등록 됨
+
+#### 스프링 부트 자동 구성 동작
+- `@Import`
+  - 정적인 방법
+    - ex. `@Import({AConfig.class})`
+    - 설정 사용할 대상을 동적으로 변경 불가
+  - 동적인 방법
+    - `ImportSelector`를 구현한 클래스를 동적으로 등록
+- 구성 동작 순서
+  1. `@SpringBootApplication` : 여러 설정 정보들이 존재
+     - 이 컴포넌트 스캔에는 `@AutoConfiguration`을 제외하는 `AutoConfigurationExcludeFilter`가 존재 -> `META-INF/spring/org.springframework.boot.autoconfiguration.AutoConfiguration.imports`  파일에 등록해서 사용해야 함
+  2. `@EnableAutoConfiguration` : 자동 구성 활성화
+     - 내부에 `@Import(AutoConfigurationImportSelector.class)`가 존재
+  3. `@Import(AutoConfigurationImportSelector.class)`
+     - `AutoConfigurationImportSelector`는 `META-INF/spring/org.springframework.boot.autoconfiguration.AutoConfiguration.imports` 경로의 파일을 확인
+     - 파일 내에 있는 설정 정보가 스프링 컨테이너에 등록되고 사용 됨

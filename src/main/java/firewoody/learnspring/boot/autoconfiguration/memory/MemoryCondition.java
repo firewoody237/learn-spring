@@ -1,0 +1,23 @@
+package firewoody.learnspring.boot.autoconfiguration.memory;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+
+// java -Dmemory=on 옵션일 때만 동작하도록 함
+
+// VM Options : -Dmemory=on
+// Program arguments : --memory=on
+// application.properties : memory=on
+
+@Slf4j
+public class MemoryCondition implements Condition {
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        String memory = context.getEnvironment().getProperty("memory");
+        log.info("memory={}", memory);
+        return "on".equals(memory);
+    }
+}
