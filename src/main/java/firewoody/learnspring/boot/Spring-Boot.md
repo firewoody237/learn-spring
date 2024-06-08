@@ -193,3 +193,40 @@
   3. jar 외부 `application.properties`
   4. jar 외부 `application-{profile}.properties`
 - 보통 `application.properties`를 사용하다가 일부 속성을 변경할 필요가 있다면 높은 우선순위를 가지는 **자바 시스템 속성**이나 **커맨드 라인 옵션 인수**를 사용
+
+#### 외부 설정 사용
+##### Environment
+- `MyDataSourceEnvConfig.java` 참조
+- [설정 속성 변환기](https://docs.spring.io/spring-boot/redirect.html?page=features#features.external-config.typesafe-configuration-properties.conversion)
+- 단점
+  - `Environment`를 직접 주입받아야 함
+  - 값을 꺼내는 과정을 반복해야 함
+##### @Value
+- 내부에서 `Environment`를 사용
+- `MyDataSourceVAlueConfig.java` 참조
+- 기본값을 사용할 수 있다.
+  - `@Value("${my.datasource.etc.max-connection:1}")`의 경우, key가 없으면 1이 기본값이 된다.
+##### @ConfigurationProperties
+- **타입 안전한 설정 속성** : 외부 설정의 묶음 정보를 객체로 변환하는 기능 (외부 설정을 자바 코드로 관리)
+- 타입에 맞지 않으면 컴파일 오류가 발생한다.
+- `@ConfigurationProperties`를 통해 설정 값들을 읽어온다.
+  - 하나하나 등록할 경우엔 `@ConfigurationProperties`를, 패키지 단위로 등록할 경우에는 `@EnableConfigurationProperties`를 사용
+- 케밥케이스 -> 카멜케이스로 자동 변환한다.
+- 일반적인 방법 참고 : `MyDataSourceConfigV1.java`, `MyDataSourcePropertiesV1.java`
+  - `@Data`를 활용하여 Setter가 있고, 데이터 변경에 따른 문제가 발생할 수 있음
+- 생성자를 통해 생성하는 방법 참고 : `MyDataSourcePropertiesV2.java`, `MyDataSourceConfigV1.java`
+  - `@Getter`만 사용하고 생성자 주입을 받으므로 중간에 값이 변경될 위험이 없음
+- 빈 검증기를 통해 값에 대한 검증이 가능
+  - 참고 : `MyDataSourcePropertiesV3.java`, `MyDataSourceConfigV3.java`
+  - `@Validated`와 빈 검증기를 사용해 속성들의 조건을 제한할 수 있다.
+
+#### YAML 파일
+- `application.properties`를 `application.yml`로 대체할 수 있음
+- 두개를 같이 쓴다면 `application.properties`가 우선권을 가짐 (단, 그렇게 사용하지 않기)
+
+#### @Profile
+- 환경마다 다른 빈을 등록해야 하는 경우
+- 참고 : `PayConfig.java`
+- 해당 프로필이 활성화된 경우에만 빈을 등록
+  - 프로필 세팅이 없는경우 스프링이 자체적으로 `default`로 세팅하고, `default` 프로파일의 빈을 선택한다.
+- `@Profile` 내부에는 `@Conditional(ProfileCondition.class)`가 존재해서 프로필 조건에 따라 빈을 생성
