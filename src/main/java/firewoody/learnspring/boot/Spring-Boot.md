@@ -292,3 +292,121 @@
 - `HttpExchangeRepository` 빈 등록 필요 (스프링은 `InMemoryHttpExchangeRepository` 구현체를 제공)
 - 예시 : `ActuatorApplicationConfig.java`
 - 단순하고 제한이 많아서 개발 단계에서만 사용하는 것이 좋음
+
+### 모니터링 툴
+- 모니터링 툴이 필요한 지표들을 전달 해 주어야 한다.
+- 스프링은 `micrometer`를 사용해 여러 모니터링 툴에 대한 사용을 "추상화" 한다.
+![마이크로미터](./images/image007.png)
+- `Actuator`는 `micrometer`를 기본으로 내장해서 사용한다.
+- [마이크로미터가 지원하는 모니터링 툴](https://micrometer.io/docs/)
+- 스프링 부트 액츄에이터는 마이크로미터가 제공하는 지표 수집을 `@AutoConfiguration`을 통해 자동으로 등록
+- 매트릭 확인 예시
+  - `http://localhost:8080/actuator/metrics/{name}`
+  - `http://localhost:8080/actuator/metrics/jvm.memory.used?tag=area:heap`
+  - `http://localhost:8080/actuator/metrics/http.server.requests?tag=uri:/log&tag=status:200`
+#### 메트릭
+- JVM 메트릭
+  - `jvm.`으로 시작
+  - 메모리 및 버퍼 풀 세부 정보
+  - 가비지 수집 관련 통계
+  - 스레드 활용
+  - 로드 및 언로드된 클래스 수
+  - JVM 버전 정보
+  - JIT 컴파일 시간
+- 시스템 메트릭
+  - `system.`, `process.`, `disk.`로 시작
+  - CPU 지표
+  - 파일 디스크립터 메트릭
+  - 가동 시간 메트릭
+  - 사용 가능한 디스크 공간
+- 애플리케이션 시작 메트릭
+  - `application.started.time` : 애플리케이션을 시작하는데 걸리는 시간 (`ApplicationStartedEvent` 로 측정)
+  - `application.ready.time` : 애플리케이션이 요청을 처리할 준비가 되는데 걸리는 시간 (`ApplicationReadyEvent`로 측정)
+- 스프링 MVC 메트릭
+  - `http.server.requests` : 스프링 MVC 컨트롤러가 처리하는 모든 요청
+  - tag : `uri`, `method`, `status`, `exception`, `outcome(상태코드 그룹)`
+- 톰캣 메트릭
+  - `tomcat.`로 시작
+  - `application.properties`의 `server.tomcat.mbeanregistry.enabled=true` 옵션을 켜야 함
+- 데이터 소스 메트릭
+  - `jdbc.connections.`
+  - `hikaricp.` : 히카리 커넥션풀을 사용하는 경우
+- 로그 메트릭
+  - `logback.events` : 로그백 로그에 대한 메트릭
+- 사용자 정의 메트릭
+- 기타
+  - HTTP 클라이언트 매트릭(`RestTemplate`, `WebClient`)
+  - 캐시 메트릭
+  - 작업 실행과 스케줄 매트릭
+  - 스프링 데이터 리포지토리 메트릭
+  - 몽고 DB 메트릭
+  - 레디스 메트릭
+
+#### 프로메테우스
+- 수집된 메트릭을 보관하는 DB
+- 일반적을 `9090` 포트를 사용
+- 프로메테우스를 위한 메트릭 포맷 제공을 위해 `build.gradle`에 추가 : `implementation 'io.micrometer:micrometer-registry-prometheus'`
+  - 추가 후 확인 가능 : `http://localhost:8080/actuator/prometheus`
+  - 포맷 
+    - `.` 대신 `_` 사용
+    - `logback.events` -> `logback_events_total` 숫자 증가 메트릭(카운터)는 `_total` 사용
+    - `http.server.requests`는 아래 3가지로 분리
+      - `http_server.requests_seconds_count` : 요청 수
+      - `http_server.requests_seconds_sum` : 시간 합
+      - `http_server.requests_seconds_max` : 최대 시간
+  - 아래 코드를 `prometheus.yml`에 추가
+```yaml
+scrape_configs:
+  ...
+  - job_name: "spring-actuator"
+  metrics_path: '/actuator/prometheus'
+  scrape_interval: 1s # 대부분 10s ~ 1m를 권장
+  static_configs:
+    - targets: ['localhost:8080']
+```
+- 참고 : 도커가 아닌 다운로드로 열 때, `./prometheus --config.file=prometheus.yml` 처럼 설정 파일의 path를 지정할 수 있음
+- 사용 방법
+  - 필터
+    - 중괄호(`{}`) 문법을 사용
+    - `=` : 문자열과 정확히 동일한 레이블 선택
+      - ex. `http_server_requests_seconds_count{uri="/log", method="GET"}`
+    - `!=` : 문자열과 같지 않은 레이블 선택
+      - ex. `http_server_requests_second_count{uri!="/actuator/prometheus"}`
+    - `=~` : 제공된 문자열과 정규식 일치하는 레이블 선택
+      - ex. `http_server_requests_second_count{method=~"GET|POST"}`
+    - `!~` : 제공된 문자열과 정규식 일치하지 않는 레이블 선택
+      - ex. `http_server_requests_second_count{uri!~"/actuator/*"}`
+  - 함수
+    - `sum` : 합계
+      - ex. `sum(http_server_requests_seconds_count)`
+    - `sum by`
+      - ex. `sum by(method, status)(http_server_requests_seconds_count)`
+    - `count`
+      - ex. `count(http_server_requests_seconds_count)`
+    - `topk` : 상위 메트릭
+      - ex. `topk(3, http_server_requests_seconds_count)`
+    - 오프셋 수정자 : 현재를 기준으로 특정 시점의 데이터를 반환
+      - ex. `http_server_requests_seconds_count offset 10m`
+    - 범위 벡터 선택기 : 지난 N기간 간의 모든 기록값을 선택
+      - ex. `http_server_requests_seconds_count offset[1m]`
+  - 게이지
+    - 임의로 오르내릴수 있는 값 (CPU 사용량, 메모리 사용량, 사용중인 커넥션 등)
+  - 카운터
+    - 단순하게 증가하는 단일 누적 값 (HTTP 요청 수, 로그 발생 수)
+    - 지원 함수
+      - `increase()` : 지정한 시간 단위별 증가 확인
+        - ex. `increase(http_server_requests_seconds_count{uri="/log"}[1m])`
+      - `rate()` : 범위 벡터에서 초당 평균 증가율 계산
+        - ex. `rate(data[1m])` : 60으로 나눈 수 
+      - `irate()` : 범위 벡터에서 초당 순간 증가율 계산
+- 공식 문서
+  - [기본기능](https://prometheus.io/docs/prometheus/latest/querying/basics/)
+  - [연산자](https://prometheus.io/docs/prometheus/latest/querying/operators/)
+  - [함수](https://prometheus.io/docs/prometheus/latest/querying/functions/)
+
+ #### 그라파나
+- 프로메테우스에 저장된 메트릭을 사용자에게 보여주는 대시보드
+![구조](./images/image008.png)
+- 일반적으로 `3000` 포트를 사용 (기본 계정 : `admin/admin`)
+- 참고 : 도커가 아닌 다운로드로 열 때, `./grafana-server.exe --config /defaults.ini --homepath /grafana` 처럼 설정 파일의 path를 지정할 수 있음
+- 미리 제공되는 대시보드도 사용 가능하다 : [사전 제공 대시보드](https://grafana.com/grafana/dashboards/)
