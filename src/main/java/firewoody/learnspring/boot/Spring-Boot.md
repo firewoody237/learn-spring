@@ -404,9 +404,40 @@ scrape_configs:
   - [연산자](https://prometheus.io/docs/prometheus/latest/querying/operators/)
   - [함수](https://prometheus.io/docs/prometheus/latest/querying/functions/)
 
- #### 그라파나
+#### 그라파나
 - 프로메테우스에 저장된 메트릭을 사용자에게 보여주는 대시보드
 ![구조](./images/image008.png)
 - 일반적으로 `3000` 포트를 사용 (기본 계정 : `admin/admin`)
 - 참고 : 도커가 아닌 다운로드로 열 때, `./grafana-server.exe --config /defaults.ini --homepath /grafana` 처럼 설정 파일의 path를 지정할 수 있음
 - 미리 제공되는 대시보드도 사용 가능하다 : [사전 제공 대시보드](https://grafana.com/grafana/dashboards/)
+
+### 커스텀 메트릭 등록
+- `MeterRegistry`가 마이크로미터 기능을 제공하는 핵심 컴포넌트이다.
+- `Couter` : 단조롭게 증가하는 단일 누적 측정항목(누적값)
+- `Gauge` : 임의로 오르내릴 수 있는 단일 숫자 값(증가하거나 감소)
+- `Timer` : `Counter`기능에 추가적으로 시간을 측적
+- 커스텀 메트릭 : `MeterReigstry`를 주입받아 사용하는 방법
+  - `ActuatorOrderServiceV1.java`처럼 등록하면, `http://localhost:8080/actuator/metrics/my.order` 에서 확인 가능
+- 커스텀 메트릭 : AOP 사용하는 방법
+  - `CountedAsepect`를 등록하면, `@Counted` 어노테이션을 인지 (반드시 등록해야 함)
+  - `ActuatorOrderServiceV2.java`
+  - `result`, `exception`, `method`, `class` 같은 다양한 `tag`를 자동으로 적용
+- 커스텀 메트릭 : `Timer`
+  - 시간을 측정하는데 사용
+  - 카운터와 유사하지만 실행 시간도 함께 측정 해 줌
+  - `seconds_count` : 누적 실행 수
+  - `seconds_sum` : 실행 시간의 합
+  - `seconds_max` : 최대 실행 시간
+  - `ActuatorOrderServiceV3.java`
+- 커스텀 메트릭 : `@Timed`
+  - `TimedAspect`르 등록하면, `@Timed`에 AOP가 적용 됨
+  - `ActuatorOrderServiceV4.java`
+- 커스텀 메트릭 : 게이지
+  - 임의로 오르내릴 수 있는 단일 수자 값
+  - 값의 현재 상태를 보는데 사용 (증가하거나 감소할 수 있음)
+  - `ActuatorOrderConfigV1.java`
+- 커스텀 메트릭 : 게이지 간단하게 등록
+  - `ActuatorOrderConfigV2.java`
+- `Tag`는 카디널리티가 낮으면서 그룹화 할 수 있는 단위에 사용해야 한다.
+  - ex. 성별, 주문 상태, 결제 수단 등
+- 알람은 경고와 심각을 잘 구분해야 함

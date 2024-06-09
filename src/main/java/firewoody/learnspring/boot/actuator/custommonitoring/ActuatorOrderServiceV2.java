@@ -1,0 +1,33 @@
+package firewoody.learnspring.boot.actuator.custommonitoring;
+
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+@Slf4j
+public class ActuatorOrderServiceV2 implements ActuatorOrderService {
+
+    private AtomicInteger stock = new AtomicInteger(100);
+
+    @Counted("my.order")
+    @Override
+    public void order() {
+        log.info("주문");
+        stock.decrementAndGet();
+    }
+
+    @Counted("my.order")
+    @Override
+    public void cancel() {
+        log.info("취소");
+        stock.incrementAndGet();
+    }
+
+    @Override
+    public AtomicInteger getStock() {
+        return stock;
+    }
+}
