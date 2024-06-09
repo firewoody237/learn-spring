@@ -230,3 +230,65 @@
 - 해당 프로필이 활성화된 경우에만 빈을 등록
   - 프로필 세팅이 없는경우 스프링이 자체적으로 `default`로 세팅하고, `default` 프로파일의 빈을 선택한다.
 - `@Profile` 내부에는 `@Conditional(ProfileCondition.class)`가 존재해서 프로필 조건에 따라 빈을 생성
+
+### 액츄에이터
+- `implementation 'org.springframework.boot:spring-boot-starter-actuator'` 추가 필요
+  - `url/actuator`로 기능 제공
+- 모든 옵션을 다 보이게 할 경우 `application.properties`에 `management.endpoints.web.exposure.include=*` 추가
+- 외부 인터넷망에는 액츄에이터의 엔드포인트를 공개하지 않아야 한다.
+  - 포트를 분리하려면 `management.server.port=9292` 처럼 변경할 수 있다.
+  - 필터나 인터셉터, 스프링 시큐리티 등을 통해 인증된 사용자만 접근 가능하도록 추가해야 한다.
+  - 엔드포인트 기본 경로를 변경하려면, `management.endpoints.web.base-path=/manage`처럼 변경하면 된다.
+#### 엔드포인트 설정
+- 엔드포인트 활성화
+  - `shutdown`을 제외하면 대부분 기본 기능이 활성화 되어있음
+  - `HTTP`와 `JMX` 중 어디에 어떤 엔트포인트를 노출할지 선택
+  - 활성화하기 위해 `management.endpoints.{엔드포인트명}.enabled=true` 적용
+- 엔드포인트 노출
+  - 노출하기 위해 `management.endpoints.web.exposure.include=...` 적용 
+- ![예시](./images/image006.png)
+- [엔드포인트 공식 메뉴얼](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints)
+  - `beans` : 스프링 컨테이너에 등록된 스프링 빈을 보여줌
+  - `conditions` : `condition`을 통해 빈을 등록할 때 평가 조건과 일치하거나 일치하지 않는 이유를 표시
+  - `configprops` : `@ConfigurationProperties`를 보여줌
+  - `health` : 애플리케이션 헬스 정보를 보여줌
+  - `httpexchanges` : HTTP 호출 응답정보를 보여줌. `HttpExchangeRepository`를 구현한 빈을 별도로 등록해야 함
+  - `info` : 애플리케이션 정보를 보여줌
+  - `loggers` : 애플리케이션 로거 설정을 보여주고, 변경 가능
+  - `metrics` : 애플리케이션의 메트릭 정보를 보여줌
+  - `mappings` : `@RequestMapping` 정보를 보여줌
+  - `threaddump` : 쓰레드 덤프를 실행해서 보여줌
+  - `shutdown` : 애플리케이션을 종료(기본적으로 비활성화)
+#### 헬스 정보
+- `http://localhost:8080/actuator/health`
+- 헬스 상세 정보 : `management.endpoint.health.show-details=always`
+- 헬스 상세 간략히 노출 : `management.endpoint.health.show-components=always`
+- [헬스 기본 지원 기능 메뉴얼](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.health.auto-configured-health-indicators)
+- [헬스 직접 구현 메뉴얼](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.health.writing-custom-health-indicators)
+#### 애플리케이션 정보
+- `http://localhost:8080/actuator/info`
+- `java` : 자바 런타임 정보 (기본 비활성화)
+- `os` : OS 정보 (기본 비활성화)
+- `env` : `Environment`에서 `info.`로 시작하는 정보 (기본 비활성화)
+  - `info.app.name=hello-actuator`
+  - `info.app.company:yh`
+- `build` : 빌드 정보, `META-INF/build-info.properties` 파일이 필요
+  - `build.gradle`에 `springBoot { buildInfo() }`를 사용하면 `build-info.properties` 파일 활성화
+- `git` : `git` 정보, `git.properties` 파일이 필요
+  - `build.gradle`에 `plugins { id "com.gorylenko.gradle-git-properties" version "2.4.1" }` 추가
+  - `resources/main/git.properties` 파일 내 정보 표기
+  - 프로젝트가 `git`으로 관리되고 있어야 함
+  - 더 자세한 정보를 추가하고 싶다면 `management.info.git.mode=full`을 사용
+- `management.info.java.enabled=true`처럼 활성화 시켜주어야 함
+#### 로거
+- `http://localhost:8080/actuator/loggers`
+- 특정 로거 이름 조회 : `http://localhost:8080/actuator/loggers/firewoody.learnspring.boot.actuator.HelloController`
+- `application.properties`에 `logging.level.firewoody.learnspring.boot.actuator.HelloController=debug` 와 같이 로그 레벨을 설정
+- `POST`를 사용해, 특정 로거에 `JSON`을 전달하면 서버를 재기동 하지 않고 로그레벨을 바꿀 수 있다.
+  - url : `http://localhost:8080/actuator/loggers/firewoody.learnspring.boot.actuator.HelloController`
+  - json : `{ "configuredLevel":"TRACE" }`
+#### HTTP 요청 응답 기록
+- HTTP 요청과 응답의 과거 기록 확인
+- `HttpExchangeRepository` 빈 등록 필요 (스프링은 `InMemoryHttpExchangeRepository` 구현체를 제공)
+- 예시 : `ActuatorApplicationConfig.java`
+- 단순하고 제한이 많아서 개발 단계에서만 사용하는 것이 좋음
